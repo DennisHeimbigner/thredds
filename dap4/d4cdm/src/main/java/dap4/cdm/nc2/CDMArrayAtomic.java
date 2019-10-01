@@ -40,7 +40,7 @@ import static dap4.core.data.DataCursor.Scheme;
     /////////////////////////////////////////////////////
     // Instance variables
 
-    protected DSP dsp = null;
+    //protected DSP dsp = null;
     protected DapVariable template = null;
     protected DapType basetype = null;
 
@@ -64,7 +64,7 @@ import static dap4.core.data.DataCursor.Scheme;
     {
         super(CDMTypeFcns.daptype2cdmtype(((DapVariable) data.getTemplate()).getBaseType()),
                 CDMUtil.computeEffectiveShape(((DapVariable) data.getTemplate()).getDimensions()));
-        this.dsp = data.getDSP();
+        //this.dsp = data.getDSP();
         this.data = data;
         this.template = (DapVariable) this.data.getTemplate();
         this.basetype = this.template.getBaseType();
@@ -83,11 +83,8 @@ import static dap4.core.data.DataCursor.Scheme;
         return this.basetype;
     }
 
-    @Override
-    public DSP getDSP()
-    {
-        return this.dsp;
-    }
+    //@Override
+    //public DSP getDSP(){return this.dsp;}
 
     @Override
     public DapVariable getTemplate()

@@ -204,8 +204,8 @@ public class TestServlet extends DapTestCommon
     protected void
     chooseTestcases()
     {
-        if(false) {
-            chosentests = locate("test_struct_type.nc");
+        if(true) {
+            chosentests = locate("test_ncml.ncml");
             prop_visual = true;
             prop_generate = false;
             prop_baseline = false;
@@ -281,7 +281,12 @@ public class TestServlet extends DapTestCommon
         byte[] byteresult = res.getContentAsByteArray();
 
         // Test by converting the raw output to a string
-        String sdmr = new String(byteresult, UTF8);
+        String charencode = res.getCharacterEncoding();
+        String sdmr = null;
+        if(charencode == "ISO-8859-1")
+            sdmr = new String(byteresult,ISO88591);
+        else
+            sdmr = new String(byteresult, UTF8);
 
         if(prop_visual)
             visual(testcase.title + ".dmr", sdmr);
@@ -885,6 +890,35 @@ public class TestServlet extends DapTestCommon
                         }));
         this.alltestcases.add(
                 new TestCase("test_struct_array.syn", "dmr,dap", true,  //8
+                        // 12 { S4 S4 }
+                        new Dump.Commands()
+                        {
+                            public void run(Dump printer) throws IOException
+                            {
+                                printer.startchecksum();
+                                for(int i = 0; i < 4; i++) {
+                                    printer.printvalue('F', 4, i);
+                                }
+                                printer.verifychecksum();
+                                printer.startchecksum();
+                                for(int i = 0; i < 3; i++) {
+                                    printer.printvalue('F', 4, i);
+                                }
+                                printer.verifychecksum();
+                                printer.startchecksum();
+                                for(int i = 0; i < 4; i++) {
+                                    for(int j = 0; j < 3; j++) {
+                                        printer.printvalue('S', 4, i);
+                                        printer.format(" ");
+                                        printer.printvalue('S', 4);
+                                        printer.format("%n");
+                                    }
+                                }
+                                printer.verifychecksum();
+                            }
+                        }));
+        this.alltestcases.add(
+                new TestCase("test_ncml.ncml", "dmr,dap", true,  //8
                         // 12 { S4 S4 }
                         new Dump.Commands()
                         {

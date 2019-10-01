@@ -49,12 +49,11 @@ public class D4TSController extends D4TSServlet
         super.handleRequest(req, res);
     }
 
-    @Override
     public String
     getResourcePath(DapRequest drq, String location)
             throws DapException
     {
-        String prefix = drq.getResourceRoot();
+        String prefix = getResourceRoot(drq);
         if(prefix == null)
             throw new DapException("Cannot find location resource: " + location)
                     .setCode(DapCodes.SC_NOT_FOUND);
@@ -72,6 +71,23 @@ public class D4TSController extends D4TSServlet
             throw new DapException("Requested file not readable: " + datasetfilepath)
                     .setCode(HttpServletResponse.SC_FORBIDDEN);
         return datasetfilepath;
+    }
+
+    @Override
+    public String
+    getResourceRoot(DapRequest drq)
+            throws DapException
+    {
+        String rootpath = drq.getResourceRoot();
+        if(rootpath == null)
+            throw new DapException("Cannot find resource root")
+                    .setCode(DapCodes.SC_NOT_FOUND);
+        // See if it really exists and is readable and of proper type
+        File root = new File(rootpath);
+        if(!root.exists() || !root.canRead() || !root.isDirectory())
+            throw new DapException("Resource root path does not exist")
+                    .setCode(HttpServletResponse.SC_NOT_FOUND);
+        return rootpath;
     }
 
 }

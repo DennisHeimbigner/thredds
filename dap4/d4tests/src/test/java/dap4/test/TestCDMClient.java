@@ -39,7 +39,7 @@ public class TestCDMClient extends DapTestCommon
     static final String BASEEXTENSION = ".txt";
     static final String INPUTEXTENSION = ".raw";
 
-    static final String DAP4TAG = "#protocol=dap4";
+    static final String DAP4TAG = "#mode=dap4";
 
     static final String DATADIR = "src/test/data/resources"; // relative to dap4 root
     static final String BASELINEDIR = "TestCDMClient/baseline";

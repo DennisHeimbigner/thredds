@@ -37,11 +37,8 @@ import dap4.core.data.DSP;
 	this.primitivetype = this.basetype.getPrimitiveType();
     */
 
-    @Override
-    public DSP getDSP()
-    {
-        return this.dsp;
-    }
+    //@Override
+    //public DSP getDSP()
 
     @Override
     public DapVariable getTemplate()

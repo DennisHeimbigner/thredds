@@ -358,12 +358,6 @@ public class DapRequest
         return this.queries;
     }
 
-    public String getResourcePath(String relpath)
-            throws IOException
-    {
-        return controller.getResourcePath(this, relpath);
-    }
-
     public String getDatasetPath()
     {
         return this.datasetpath;
