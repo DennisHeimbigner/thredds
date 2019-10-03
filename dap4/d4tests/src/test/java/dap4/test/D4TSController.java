@@ -12,6 +12,8 @@ import dap4.servlet.DapRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.dataset.NetcdfDataset;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +51,7 @@ public class D4TSController extends D4TSServlet
         super.handleRequest(req, res);
     }
 
+    //Not used
     public String
     getResourcePath(DapRequest drq, String location)
             throws DapException
@@ -88,6 +91,26 @@ public class D4TSController extends D4TSServlet
             throw new DapException("Resource root path does not exist")
                     .setCode(HttpServletResponse.SC_NOT_FOUND);
         return rootpath;
+    }
+
+    /*
+     * Ask the controller if it can convert a string to a NetcdfFile
+    */
+    @Override
+    public NetcdfFile getNetcdfFile(DapRequest drq, String path)
+    {
+        NetcdfFile ncfile = null;
+        try {
+            ncfile = NetcdfFile.open(path);
+        } catch (IOException io1) {
+            try {
+                // Try as netcdfdataset
+                ncfile = NetcdfDataset.openFile(path, null);
+            } catch (IOException io2) {
+                ncfile = null;
+            }
+        }
+        return ncfile;
     }
 
 }

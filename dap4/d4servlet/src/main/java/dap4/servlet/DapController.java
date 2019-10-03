@@ -117,19 +117,6 @@ abstract public class DapController extends HttpServlet
     abstract protected void doCapabilities(DapRequest drq, DapContext cxt) throws IOException;
 
     /**
-     * Convert a URL path into an Netcdf object referencing
-     * the file path part of the URL.
-     * Note that it is assumed than any leading servlet prefix has been removed.
-     *
-     * @param drq      dap request
-     * @param location suffix of url path
-     * @return
-     * @throws IOException
-     */
-
-    abstract public NetcdfFile getNetcdfFile(DapRequest drq, String location) throws DapException;
-
-    /**
      * Get the root of the resource directory.
      * In some cases, the root is relative to the Dap Request, so
      * we include that as an argument.
@@ -139,6 +126,11 @@ abstract public class DapController extends HttpServlet
      */
 
     abstract public String getResourceRoot(DapRequest drq) throws DapException;
+
+    /*
+     * Ask the controller if it can convert a string to a NetcdfFile
+     */
+    abstract public NetcdfFile getNetcdfFile(DapRequest drq, String location) throws DapException;
 
     /**
      * Get the maximum # of bytes per request
@@ -314,10 +306,11 @@ abstract public class DapController extends HttpServlet
     doDMR(DapRequest drq, DapContext cxt)
             throws IOException
     {
-        // Convert the url to an absolute path
-        NetcdfFile actual = getNetcdfFile(drq, drq.getDatasetPath());
+        String root = drq.getController().getResourceRoot(drq);
+        String location = drq.getDatasetPath();
+        String path = DapUtil.canonjoin(root, location);
 
-        DSP dsp = DapCache.open(actual, cxt);
+        DSP dsp = DapCache.open(drq, path, cxt);
         DapDataset dmr = dsp.getDMR();
 
         /* Annotate with our endianness */
@@ -370,12 +363,13 @@ abstract public class DapController extends HttpServlet
     doData(DapRequest drq, DapContext cxt)
             throws IOException
     {
-        // Convert the url to a netcdf file
-        NetcdfFile ncf = getNetcdfFile(drq, drq.getDatasetPath());
+        String root = drq.getController().getResourceRoot(drq);
+        String location = drq.getDatasetPath();
+        String path = DapUtil.canonjoin(root, location);
 
-        DSP dsp = DapCache.open(ncf, cxt);
+        DSP dsp = DapCache.open(drq, path, cxt);
         if(dsp == null)
-            throw new DapException("No such file: " + ncf.getLocation());
+            throw new DapException("No such file: " + path);
         DapDataset dmr = dsp.getDMR();
         if(DUMPDMR) {
             printDMR(dmr);

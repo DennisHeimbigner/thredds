@@ -321,6 +321,11 @@ public class DapRequest
         return this.controllerpath;
     }
 
+    public DapController getController()
+    {
+        return this.controller;
+    }
+
     public String getURLPath()
     {
         return this.controllerpath + (this.datasetpath == null ? "" : this.datasetpath);
