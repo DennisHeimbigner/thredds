@@ -24,17 +24,60 @@ import java.util.Map;
 
 
 /**
- * On the server side, the input can come from a variety of sources,
- * including NetcdfFile, NetcdfDataset, synthetic sources (.syn), and
- * raw capturess of DAP4 on-the-wire captures (.raw).
- * This is intended to be hidden behind the facade of a DSP/AbstractDSP.
- * This facade can be very complex (CDMDSP that converts a CDM API to DAP4)
- * or relatively simple for .raw files.
- * Given the path to a source, or a NetcdfFile, this singleton class
- * figures out the appropriate DSP wrapper for it.
- * So it manages the mapping of various kinds of input sources
- * to the proper DSP to process that kind of source.
- * It is expected (for now) that this is only used on the server side.
+The old DAP4 code assumed that all source files
+on the server could be specified using a path string.
+It turns out that for virtual files like .ncml files,
+this is false and instead, a NetcdfFile instance must be used.
+
+Fixing this necessitated some significant changes to the DAP4 code.
+The basic fix was to make the primary DAP4 code operate with respect
+to a DSP object. Then the problem was to change the code that invoked DAP4
+so that it figured out what kind of DSP object to use.
+
+The primary change on the server side is to provide a function that,
+given an object, can figure out what kind of DSP to use to convert that
+kind of object to a DAP4 representation. This is defined in the new class
+called DapDSP. DapDSP has two primary externally visible API functions:
+1. open a NetcdfFile - returns a CDMDSP wrapping the NetcdfFile object.
+2. open a String - uses the rules below to figure out what kind of DSP
+   to return.
+
+If the string parses as a URI, then look at the protocol.
+If the protocol is file://, then treat as a file path and
+use the rules below.
+
+Otherwise, look at the protocol and the mode arg in the fragment
+part and use the following mapping.
+   * dap4://... use HttpDSP with URI converted to http://...
+   * #mode=dap4 - use HttpDSP
+   * #dap4 - use HttpDSP
+In practice, HttpDSP is only used on the client side to read a
+DAP4 encoded stream.
+
+If the String is a file path (or file:// URL) then 
+determine the DSP using the file path extension as follows:
+   * .dmr|.syn| - use SynDSP
+   * .dap|.raw - use FileDSP
+   * .nc|.hdf5 - use Nc4DSP
+
+As a rule, clients will end up using HttpDSP to read the
+incoming DAP4 encode Http stream. Again as a rule, Servers will
+assume an incoming Http request is for a NetcdfFile and will use
+CDMDSP to convert that to a DAP4 Http stream. In the event that
+Server detects that the file to be read is .nc, then it may
+choose to use Nc4DSP to read the file, although it is not
+required to and can instead open the file as a NetcdfFile object
+and use CDMDSP.  All of the other cases are, again as a rule,
+used for testing and can be identified by the special path/URI extension
+(e.g. .syn or .dap or .raw).
+
+The other major change, and the one that actually prompted this
+whole change, is in the DapController and its
+subclasses. Specifically, the function getNetcdfFile() has been
+added to attempt to convert a String (a location) to a
+NetcdfFile object (ultimately via DapDSP).  It is only if this
+fails that an attempt is made to look for the other cases via
+the location extension.
  */
 
 abstract public class DapDSP
