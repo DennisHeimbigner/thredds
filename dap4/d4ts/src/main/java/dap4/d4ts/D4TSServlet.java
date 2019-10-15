@@ -44,12 +44,6 @@ public class D4TSServlet extends DapController
     // Type Decls
 
     //////////////////////////////////////////////////
-
-    //static {
-     //   DapCache.setFactory(new D4TSFactory());
-    //}
-
-    //////////////////////////////////////////////////
     // Instance variables
 
     protected List<Root> defaultroots = null;

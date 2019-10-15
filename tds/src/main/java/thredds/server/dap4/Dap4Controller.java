@@ -119,7 +119,7 @@ public class Dap4Controller extends DapController
     }
 
     /*
-     * There is a problem Spring under intellij when using mocking.
+     * There is a problem with Spring under intellij when using mocking.
      * See TestServlet for more info.  In any case, if autowiring does
      * not work, then TdsRequestedDataset.getLocationFromRequestPath
      * will fail because its internal DatasetManager value will be null.
